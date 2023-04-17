@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Music List</title>
+</head>
+<body>
+<h2>Music List</h2>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Author</th>
+    <th>Album</th>
+    <th>Genre</th>
+    <th>Link</th>
+    <th>Year</th>
+    <th>Rating</th>
+  </tr>
+  <tbody>
+  <tr th:each="music : ${musicList}">
+    <td th:text="${music.name}"></td>
+    <td th:text="${music.author}"></td>
+    <td th:text="${music.album}"></td>
+    <td th:text="${music.genre}"></td>
+    <td>
+      <a href="${music.link}" target="_blank" th:text="${music.link}"></a>
+    </td>
+    <td th:text="${music.year}"></td>
+    <td th:text="${music.rating}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

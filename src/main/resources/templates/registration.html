@@ -24,6 +24,13 @@
         <input type="text" id="name" name="name" required th:placeholder="#{registration.name}">
     </p>
     <p>
+        <label for="role">Role:</label>
+        <select id="role" name="role">
+            <option value="USER" th:text="#{USER}"></option>
+            <option value="ADMIN" th:text="#{ADMIN}"></option>
+        </select>
+    </p>
+    <p>
         <label for="gender">Пол:</label>
         <select id="gender" name="gender">
             <option value="male" th:text="#{registration.gender.male}"></option>

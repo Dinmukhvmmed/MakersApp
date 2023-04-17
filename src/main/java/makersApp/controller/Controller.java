@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,17 +28,18 @@ public class Controller {
     private UserRepository userRepository;
 
     @GetMapping("/")
-    public ResponseEntity homePage() {
+    public String homePage(Model model) {
         List<Music> musicList = musicRepository.findAll();
-        return new ResponseEntity(musicList, HttpStatus.OK);
+        model.addAttribute("musicList", musicList);
+        return "musicList";
     }
 
     @PostMapping("/admin/add")
     public ResponseEntity addMusic(@RequestParam(name = "Название музыки") String musicName,
                                    @RequestParam(name = "Автор музыки") String authorName,
-                                   @RequestParam(name = "Жанр музыки", required = false) String genre,
-                                   @RequestParam(name = "Ссылка на YouTube", required = false) String link,
-                                   @RequestParam(name = "Название альбома", required = false) String albumName,
+                                   @RequestParam(name = "Жанр музыки") String genre,
+                                   @RequestParam(name = "Ссылка на YouTube") String link,
+                                   @RequestParam(name = "Название альбома") String albumName,
                                    @RequestParam(name = "Год выпуска") int year) {
         Music music = new Music();
         music.setName(musicName);
@@ -87,7 +89,8 @@ public class Controller {
     }
 
     @GetMapping("/user/addFavorite")
-    public ResponseEntity favorite(User user, @RequestParam(name = "") String musicName) {
+    public ResponseEntity favorite(User user, @RequestParam(name =
+            "Название песни которую вы хотите добавить в избранное") String musicName) {
         Music music = musicRepository.findByName(musicName).get();
         user.getYourFavorite().add(music.getName());
         music.setRating(music.getRating() + 5);
