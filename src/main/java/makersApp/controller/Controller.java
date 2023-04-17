@@ -1,7 +1,9 @@
 package makersApp.controller;
 
 import makersApp.model.Music;
+import makersApp.model.User;
 import makersApp.repository.MusicRepository;
+import makersApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -19,9 +21,18 @@ import java.util.stream.Collectors;
 @RestController
 public class Controller {
     @Autowired
-    MusicRepository musicRepository;
+    private MusicRepository musicRepository;
 
-    @PostMapping("/adminsAdd")
+    @Autowired
+    private UserRepository userRepository;
+
+    @GetMapping("/")
+    public ResponseEntity homePage() {
+        List<Music> musicList = musicRepository.findAll();
+        return new ResponseEntity(musicList, HttpStatus.OK);
+    }
+
+    @PostMapping("/admin/add")
     public ResponseEntity addMusic(@RequestParam(name = "Название музыки") String musicName,
                                    @RequestParam(name = "Автор музыки") String authorName,
                                    @RequestParam(name = "Жанр музыки", required = false) String genre,
@@ -39,7 +50,7 @@ public class Controller {
         return new ResponseEntity(music, HttpStatus.OK);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/user/search")
     public ResponseEntity searchMusic(@RequestParam(name = "Название музыки") String name) {
         Optional<Music> optionalMusic = musicRepository.findByName(name);
         if (!optionalMusic.isPresent()) {
@@ -48,7 +59,7 @@ public class Controller {
         return new ResponseEntity(optionalMusic, HttpStatus.OK);
     }
 
-    @GetMapping("/filter/byAuthor")
+    @GetMapping("/user/filterByAuthor")
     public ResponseEntity filterByAuthor(@RequestParam(name = "Автор музыки") String authorName) {
         List<Music> authorsMusic = musicRepository.findByAuthor(authorName);
         if (authorsMusic.size() == 0) {
@@ -57,7 +68,7 @@ public class Controller {
         return new ResponseEntity(authorsMusic, HttpStatus.OK);
     }
 
-    @GetMapping("/filter/byGenre")
+    @GetMapping("/user/filterByGenre")
     public ResponseEntity filterByGenre(@RequestParam(name = "Жанр музыки") String genre) {
         List<Music> genresMusic = musicRepository.findByGenre(genre);
         if (genresMusic.size() == 0) {
@@ -66,7 +77,7 @@ public class Controller {
         return new ResponseEntity(genresMusic, HttpStatus.OK);
     }
 
-    @GetMapping("/filter/byName")
+    @GetMapping("/user/filterByName")
     public ResponseEntity filterByName(@RequestParam(name = "Название музыки") String musicName) {
         Optional<Music> musicOptional = musicRepository.findByName(musicName);
         if (!musicOptional.isPresent()) {
@@ -75,10 +86,17 @@ public class Controller {
         return new ResponseEntity(musicOptional, HttpStatus.OK);
     }
 
-//    @GetMapping("/favorite")
-//    public ResponseEntity
+    @GetMapping("/user/addFavorite")
+    public ResponseEntity favorite(User user, @RequestParam(name = "") String musicName) {
+        Music music = musicRepository.findByName(musicName).get();
+        user.getYourFavorite().add(music.getName());
+        music.setRating(music.getRating() + 5);
+        musicRepository.save(music);
+        userRepository.save(user);
+        return new ResponseEntity(user.getYourFavorite(), HttpStatus.OK);
+    }
 
-    @GetMapping("/recommendations/popularity")
+    @GetMapping("/user/recommendationsPopularity")
     public ResponseEntity popularityMusic() {
         if (musicRepository.findAll().size() < 10) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -88,7 +106,7 @@ public class Controller {
         return new ResponseEntity(musicList, HttpStatus.OK);
     }
 
-    @GetMapping("/recommendations/new")
+    @GetMapping("/user/recommendationsNew")
     public ResponseEntity recommendationsNew() {
         if (musicRepository.findAll().size() < 5) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -100,7 +118,7 @@ public class Controller {
         return new ResponseEntity(lastMusic, HttpStatus.OK);
     }
 
-    @PostMapping("/addRating")
+    @PostMapping("/user/addRating")
     public ResponseEntity addRating(@RequestParam(name = "Название музыки") String name) {
         Optional<Music> optionalMusic = musicRepository.findByName(name);
         if (!optionalMusic.isPresent()) {
@@ -111,7 +129,7 @@ public class Controller {
         return new ResponseEntity(optionalMusic.get(), HttpStatus.OK);
     }
 
-    @GetMapping("/recommendations/our")
+    @GetMapping("/user/recommendationsOur")
     public ResponseEntity ourRecommendations() {
         if (musicRepository.findAll().size() < 5) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
