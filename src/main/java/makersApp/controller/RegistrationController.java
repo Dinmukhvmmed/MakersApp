@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class RegistrationController {
@@ -21,7 +22,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
-    public String addUser(@Validated User userForm, BindingResult bindingResult, Model model) {
+    public String addUser(@Validated User userForm, BindingResult bindingResult, Model model, @RequestParam("role") String role) {
         if (bindingResult.hasErrors()) {
             return "registration";
         }
@@ -29,10 +30,11 @@ public class RegistrationController {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "registration";
         }
-        if (!userService.saveUser(userForm)) {
+        if (!userService.saveUser(userForm, role)) {
             model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
             return "registration";
         }
+
 
         return "redirect:/";
     }
